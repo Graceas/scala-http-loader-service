@@ -5,11 +5,13 @@ import java.nio.file.Paths
 import graceas.loader.utils.Logging
 import pureconfig.loadConfig
 
+import scala.concurrent.duration.FiniteDuration
 import scala.sys.SystemProperties
 
 case class Config(
   secretKey: String,
-  http: HttpConfig
+  http: HttpConfig,
+  loader: LoaderConfig,
 )
 
 object Config extends Logging {
@@ -31,3 +33,4 @@ object Config extends Logging {
 }
 
 case class HttpConfig(startServer: Boolean, host: String, port: Int, logLevel: String, mockAuth: Boolean)
+case class LoaderConfig(cacheEntityExpiredMinutes: Int)

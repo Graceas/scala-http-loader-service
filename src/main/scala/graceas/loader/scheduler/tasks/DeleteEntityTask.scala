@@ -2,8 +2,10 @@ package graceas.loader.scheduler.tasks
 
 import java.util.Date
 
+import graceas.loader.config.Config
 import graceas.loader.helper.FileHelper
 import graceas.loader.utils.scheduler.{Task, TaskDescriptor}
+import graceas.loader.GraceasLoaderModule._
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -23,7 +25,7 @@ object DeleteEntityTask extends Task {
     files.foreach(file => {
       val diff = new Date().getTime - file.lastModified
 
-      if (diff > 20 * 60 * 1000) {
+      if (diff > inject[Config].loader.cacheEntityExpiredMinutes * 60 * 1000) {
         // remove files older than 20 minutes
         log.debug(s"Delete cache file ${file.getAbsolutePath}")
         file.delete()
