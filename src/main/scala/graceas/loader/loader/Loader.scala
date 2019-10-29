@@ -2,6 +2,7 @@ package graceas.loader.loader
 
 import java.io.File
 import java.nio.file.Path
+import java.util.UUID
 
 import akka.NotUsed
 import akka.actor.ActorSystem
@@ -74,6 +75,12 @@ class Loader()(implicit system: ActorSystem, materializer: Materializer, executi
   }
 
   def entity(entityName: String): String = {
+    try {
+      UUID.fromString(entityName)
+    } catch {
+      case _: Throwable => return null
+    }
+
     val file = new File(s"${FileHelper.tempDir()}$entityName")
 
     if (file.canRead && file.isFile) {
@@ -82,7 +89,7 @@ class Loader()(implicit system: ActorSystem, materializer: Materializer, executi
 
       lines
     } else {
-      ""
+      null
     }
   }
 }
