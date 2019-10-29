@@ -61,7 +61,7 @@ class HttpRouter()(implicit system: ActorSystem, materializer: Materializer, api
                 pathPrefix("entity") {
                   path(Segment) { entityName =>
                     get {
-                      complete(loader.entity(entityName).map(response => okResponse(response)))
+                      complete(loader.entity(entityName))
                     }
                   }
                 }

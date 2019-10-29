@@ -76,7 +76,6 @@ class Loader()(implicit system: ActorSystem, materializer: Materializer, executi
   def entity(entityName: String): String = {
     val file = new File(s"${FileHelper.tempDir()}$entityName")
 
-    println(file.getAbsolutePath)
     if (file.canRead && file.isFile) {
       val source = scala.io.Source.fromFile(file)
       val lines = try source.mkString finally source.close()
