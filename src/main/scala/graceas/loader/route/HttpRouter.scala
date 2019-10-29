@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.event.LoggingAdapter
 import akka.http.scaladsl.model.{HttpRequest, MediaTypes}
 import akka.http.scaladsl.server.directives.{LogEntry, LoggingMagnet}
-import akka.http.scaladsl.server.{Directives, Route, RouteResult, StandardRoute}
+import akka.http.scaladsl.server.{Directives, Route, RouteResult}
 import akka.event.Logging.{InfoLevel, WarningLevel}
 import akka.stream.Materializer
 import graceas.loader.loader.{Loader, Request, Requests}
@@ -47,9 +47,6 @@ class HttpRouter()(implicit system: ActorSystem, materializer: Materializer, api
                 path("execute") {
                   post {
                     entity(as[Request]) { request =>
-                      println("start")
-                      println(request)
-                      println("end")
                       complete(loader.executeRequest(request).map(response => okResponse(response)))
                     }
                   }
@@ -57,7 +54,6 @@ class HttpRouter()(implicit system: ActorSystem, materializer: Materializer, api
                 path("execute-requests") {
                   post {
                     entity(as[Requests]) { requests =>
-                      println(requests)
                       complete(loader.executeRequests(requests).map(response => okResponse(response)))
                     }
                   }
