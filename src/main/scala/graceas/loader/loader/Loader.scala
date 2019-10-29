@@ -40,7 +40,6 @@ class Loader()(implicit system: ActorSystem, materializer: Materializer, executi
 
       val name = FileHelper.uniqueFileName()
       val path = s"${FileHelper.tempDir()}$name"
-      response.entity.dataBytes.async.runWith(FileIO.toPath(Path.of(path)))
 
       if (request.options.contains("return_content") && request.options("return_content").asInstanceOf[Boolean]) {
         response.entity.toStrict(core.timeout).map(content => {
@@ -54,6 +53,7 @@ class Loader()(implicit system: ActorSystem, materializer: Materializer, executi
           )
         })
       } else {
+        response.entity.dataBytes.async.runWith(FileIO.toPath(Path.of(path)))
         Future.successful(Response(
           request.url,
           request.method,

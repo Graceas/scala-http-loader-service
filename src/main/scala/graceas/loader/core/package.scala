@@ -9,7 +9,7 @@ package object core {
   type RoomID = String
   type OptionalId = Option[Id]
 
-  val timeout: FiniteDuration = 5.seconds
+  val timeout: FiniteDuration = 10.seconds
 
   final case class AuthTokenContent(
     userId:  UserID,

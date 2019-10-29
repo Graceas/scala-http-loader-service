@@ -1,13 +1,14 @@
 package graceas.loader.loader
 
 import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers.RawHeader
 
 import scala.collection.immutable
 
 case class Request(
   url:      String,
   method:   String,
-  headers:  immutable.Seq[HttpHeader],
+  headers:  immutable.Seq[RawHeader],
   entity:   Option[RequestEntity],
   protocol: String = HttpProtocols.`HTTP/1.1`.value,
   options:  Map[String, AnyVal]
