@@ -1,22 +1,5 @@
-SimpleLogger
-====================
+ScalaHttpLoaderService
+======================
 
-This simple PHP logger class.
+HTTP Loader service.
 
-Installation
-============
-
-Through composer:
-
-    "require": {
-        ...
-        "graceas/php-simple-logger": "v1.1.5"
-        ...
-    }
-
-Usage
-=====
-
-    $logger = new \SimpleLogger\SimpleLogger();
-    $logger->addCritical('critical error');
-    $logger->addInfo('info message');
