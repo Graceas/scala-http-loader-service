@@ -1,10 +1,7 @@
 package graceas.loader.loader
 
 import java.io.File
-import java.nio.file.{OpenOption, Path}
-
-import sun.nio.fs.UnixPath
-import java.util.UUID
+import java.nio.file.Path
 
 import akka.NotUsed
 import akka.actor.ActorSystem
@@ -40,7 +37,8 @@ class Loader()(implicit system: ActorSystem, materializer: Materializer, executi
       case _ => Future.failed(new RuntimeException())
     }.flatMap(response => {
 
-      val path = FileHelper.uniqueFileName()
+      val name = FileHelper.uniqueFileName()
+      val path = s"${FileHelper.tempDir()}$name"
       response.entity.dataBytes.async.runWith(FileIO.toPath(Path.of(path)))
 
       if (request.options.contains("return_content") && request.options("return_content").asInstanceOf[Boolean]) {
@@ -49,7 +47,7 @@ class Loader()(implicit system: ActorSystem, materializer: Materializer, executi
             request.url,
             request.method,
             response.headers.map(header => (header.name(), header.value())).toMap,
-            path,
+            name,
             Some(content.data.utf8String),
             request
           )
@@ -59,7 +57,7 @@ class Loader()(implicit system: ActorSystem, materializer: Materializer, executi
           request.url,
           request.method,
           response.headers.map(header => (header.name(), header.value())).toMap,
-          path,
+          name,
           None,
           request
         ))
@@ -73,5 +71,19 @@ class Loader()(implicit system: ActorSystem, materializer: Materializer, executi
     })).map(responses => {
       Responses(responses, requests.options)
     })
+  }
+
+  def entity(entityName: String): String = {
+    val file = new File(s"${FileHelper.tempDir()}$entityName")
+
+    println(file.getAbsolutePath)
+    if (file.canRead && file.isFile) {
+      val source = scala.io.Source.fromFile(file)
+      val lines = try source.mkString finally source.close()
+
+      lines
+    } else {
+      ""
+    }
   }
 }

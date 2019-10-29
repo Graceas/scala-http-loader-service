@@ -23,7 +23,7 @@ object FileHelper {
   }
 
   def uniqueFileName(): String = {
-    s"${tempDir()}/${UUID.randomUUID().toString}"
+    UUID.randomUUID().toString
   }
 
   def getListOfFiles(dir: String): List[File] = {
