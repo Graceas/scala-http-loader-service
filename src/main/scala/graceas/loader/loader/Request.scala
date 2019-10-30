@@ -2,6 +2,8 @@ package graceas.loader.loader
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.RawHeader
+import com.fasterxml.jackson.module.scala.JsonScalaEnumeration
+import graceas.loader.loader.LoaderOptions.LoaderOptions
 
 import scala.collection.immutable
 
@@ -11,15 +13,16 @@ case class Request(
   headers:  immutable.Seq[RawHeader],
   entity:   Option[RequestEntity],
   protocol: String = HttpProtocols.`HTTP/1.1`.value,
-  options:  Map[String, AnyVal]
+  @JsonScalaEnumeration(classOf[LoaderOptionsTypeReference])
+  options:  Map[LoaderOptions, AnyVal]
 ) {
   def toHttpRequest: HttpRequest = {
     HttpRequest(
-      HttpMethods.getForKey(method).getOrElse(throw new Exception(s"HttpMethod for key $method is not defined")),
-      Uri(url),
-      headers,
-      entity.getOrElse(HttpEntity.Empty),
-      HttpProtocols.getForKey(
+      method   = HttpMethods.getForKey(method).getOrElse(throw new Exception(s"HttpMethod for key $method is not defined")),
+      uri      = Uri(url),
+      headers  = headers,
+      entity   = entity.getOrElse(HttpEntity.Empty),
+      protocol = HttpProtocols.getForKey(
         if (protocol == null) HttpProtocols.`HTTP/1.1`.value else protocol
       ).getOrElse(throw new Exception(s"Protocol for key $protocol is not defined")),
     )

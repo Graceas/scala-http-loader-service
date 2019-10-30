@@ -14,6 +14,7 @@ import akka.stream.{Materializer, OverflowStrategy}
 import akka.stream.scaladsl.{FileIO, Flow, Keep, Sink, Source, SourceQueueWithComplete}
 import graceas.loader.core
 import graceas.loader.helper.FileHelper
+import graceas.loader.loader.LoaderOptions.LoaderOptions
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success, Try}
@@ -41,26 +42,32 @@ class Loader()(implicit system: ActorSystem, materializer: Materializer, executi
       val name = FileHelper.uniqueFileName()
       val path = s"${FileHelper.tempDir()}$name"
 
-      if (request.options.contains("return_content") && request.options("return_content").asInstanceOf[Boolean]) {
+      if (getOption[Boolean](request.options, LoaderOptions.RETURN_CONTENT, false)) {
+        // strict entity to variable
         response.entity.toStrict(core.timeout).map(content => {
           Response(
-            request.url,
-            request.method,
-            response.headers.map(header => (header.name(), header.value())).toMap,
-            name,
-            Some(content.data.utf8String),
-            request
+            url        = request.url,
+            method     = request.method,
+            headers    = response.headers.map(header => (header.name(), header.value())).toMap,
+            entityName = name,
+            entity     = Some(content.data.utf8String),
+            request    = if (getOption[Boolean](request.options, LoaderOptions.RETURN_REQUEST, true))
+              Some(request)
+            else None
           )
         })
       } else {
+        // save entity to file
         response.entity.dataBytes.async.runWith(FileIO.toPath(Path.of(path)))
         Future.successful(Response(
-          request.url,
-          request.method,
-          response.headers.map(header => (header.name(), header.value())).toMap,
-          name,
-          None,
-          request
+          url        = request.url,
+          method     = request.method,
+          headers    = response.headers.map(header => (header.name(), header.value())).toMap,
+          entityName = name,
+          entity     = None,
+          request    = if (getOption[Boolean](request.options, LoaderOptions.RETURN_REQUEST, true))
+            Some(request)
+          else None
         ))
       }
     })
@@ -90,6 +97,14 @@ class Loader()(implicit system: ActorSystem, materializer: Materializer, executi
       lines
     } else {
       null
+    }
+  }
+
+  private def getOption[T](options: Map[LoaderOptions, AnyVal], key: LoaderOptions, default: T): T = {
+    if (options.contains(key) && options(key).isInstanceOf[T]) {
+      options(key).asInstanceOf[T]
+    } else {
+      default
     }
   }
 }

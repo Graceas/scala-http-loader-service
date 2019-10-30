@@ -6,5 +6,5 @@ case class Response(
   headers:    Map[String, String],
   entityName: String,
   entity:     Option[String],
-  request:    Request
+  request:    Option[Request]
 )

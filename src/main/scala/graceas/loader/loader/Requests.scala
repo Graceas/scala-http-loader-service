@@ -1,6 +1,10 @@
 package graceas.loader.loader
 
+import com.fasterxml.jackson.module.scala.JsonScalaEnumeration
+import graceas.loader.loader.LoaderOptions.LoaderOptions
+
 case class Requests(
   requests: Seq[Request],
-  options:  Map[String, AnyVal]
+  @JsonScalaEnumeration(classOf[LoaderOptionsTypeReference])
+  options:  Map[LoaderOptions, AnyVal]
 )
