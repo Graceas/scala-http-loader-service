@@ -41,33 +41,31 @@ class HttpRouter()(implicit system: ActorSystem, materializer: Materializer, api
       } ~
       pathPrefix("api") {
         pathPrefix("v1") {
-//          corsHandler {
-            extract(_.request.headers) { headers =>
-              handleErrors(DefaultErrorFormatter, headers) {
-                path("execute") {
-                  post {
-                    entity(as[Request]) { request =>
-                      complete(loader.executeRequest(request).map(response => okResponse(response)))
-                    }
+          extract(_.request.headers) { headers =>
+            handleErrors(DefaultErrorFormatter, headers) {
+              path("execute") {
+                post {
+                  entity(as[Request]) { request =>
+                    complete(loader.executeRequest(request).map(response => okResponse(response)))
                   }
-                } ~
-                path("execute-requests") {
-                  post {
-                    entity(as[Requests]) { requests =>
-                      complete(loader.executeRequests(requests).map(response => okResponse(response)))
-                    }
+                }
+              } ~
+              path("execute-requests") {
+                post {
+                  entity(as[Requests]) { requests =>
+                    complete(loader.executeRequests(requests).map(response => okResponse(response)))
                   }
-                } ~
-                pathPrefix("entity") {
-                  path(Segment) { entityName =>
-                    get {
-                      complete(loader.entity(entityName))
-                    }
+                }
+              } ~
+              pathPrefix("entity") {
+                path(Segment) { entityName =>
+                  get {
+                    complete(loader.entity(entityName))
                   }
                 }
               }
             }
-//          }
+          }
         }
       }
     }
